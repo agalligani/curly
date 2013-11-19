@@ -1,0 +1,5 @@
+name = curlservice2
+description = Curl json feed version 2
+package = 1A
+core = 7.x
+files = curlservice2.module

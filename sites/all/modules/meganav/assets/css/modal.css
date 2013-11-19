@@ -1,0 +1,75 @@
+/*
+
+    /Users/tony.galligani/cbs2/sites/all/themes/gsb_theme/assets/css/modal.css
+
+        TODO:
+
+                Cleanup
+                Etc...
+
+*/
+
+/* Content // G5 Modals */
+.modal {
+    display: none;
+    left: 50%;
+    position: absolute;
+    top: 50%;
+}
+
+.overlay {
+    display: none;
+    height: 100%;
+    left: 0;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 99999;
+}
+
+.overlay-bg {
+    background: rgba(0, 0, 0, 0.6);
+    background: url(../images/content/bg_black-op.png) repeat 0 0;
+    cursor: pointer;
+    height: 100%;
+    position: relative;
+    width: 100%;
+}
+
+.touch .overlay {
+    position: absolute;
+}
+
+.touch .modal {
+    top: 25%;
+}
+
+.overlay-content .modal {
+    display: block;
+}
+
+.overlay-content .modal.standard {
+    background: #fff;
+    margin: 0 0 0 -280px;
+    padding: 30px;
+    width: 500px;
+}
+
+.overlay-content .modal.secondary {
+    background: #f6f6f6;
+    margin: 0 0 0 -210px;
+    padding: 10px;
+    width: 400px;
+}
+
+.modal.search form {
+    width: 100%;
+}
+
+.modal.search input {
+    font-size: 32px;
+    margin: 0 auto;
+    padding: 12px 0;
+    width: 960px;
+}
+

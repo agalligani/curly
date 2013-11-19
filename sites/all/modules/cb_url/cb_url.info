@@ -1,0 +1,5 @@
+; $Id$
+name = "GSB Columbia Business (Formerly Hermes) Curlitem URL Override"
+description = "Rewrites URLs for Alumni News Curlitems"
+package = "GSB"
+core = 7.x

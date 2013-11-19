@@ -1,0 +1,5 @@
+name = curlservice
+description = Curl json feed
+package = 1A
+core = 7.x
+files = curlservice.module

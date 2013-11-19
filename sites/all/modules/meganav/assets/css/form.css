@@ -1,0 +1,103 @@
+/*
+
+    /Users/tony.galligani/cbs2/sites/all/themes/gsb_theme/assets/css/form.css
+
+        TODO:
+
+                Cleanup
+                Etc...
+
+*/
+
+.content fieldset {
+    margin: 0;
+    padding: 0;
+}
+
+.content textarea {
+    clear: both;
+    display: block;
+    height: 80px;
+    margin: 1em 0;
+    width: 80%;
+}
+
+.content textarea:focus {
+    outline: none;
+}
+
+/* Content // Form */ 
+.form-validation {
+    overflow: hidden;
+}
+
+.form-validation .form-errors {
+    display: none;
+    margin: 1.5em 0;
+}
+
+.form-validation .form-errors label {
+    display: list-item;
+}
+
+.form-validation label[generated="true"] {
+    display: none;
+}
+
+.thank-you {
+    display: none;
+}
+
+/* Content // Form // Group */ 
+.group {
+    overflow: hidden;
+}
+
+.group label {
+    float: left;
+}
+
+.group .radio,
+.group .checkbox {
+    float: left;
+}
+
+/* Content // Form // Checkbox */ 
+.radio,
+.checkbox {
+    background: url(../images/form/form.png) no-repeat 0 0;
+    cursor: pointer;
+    display: block;
+    height: 16px;
+    width: 16px;
+}
+
+.checkbox {
+    background-position: 0 -61px;
+}
+
+.checkbox.active {
+    background-position: 0 2px;
+}
+
+.checkbox.error {
+    background-position: 0 -124px;
+}
+
+.radio {
+    background-position: 0 -186px;
+}
+
+.radio.active {
+    background-position: 0 -246px;
+}
+
+.radio.error {
+    background-position: 0 -306px;
+}
+
+/* Content // Form // Select */
+select.error {
+    border: 1px solid #ff0000;
+}
+

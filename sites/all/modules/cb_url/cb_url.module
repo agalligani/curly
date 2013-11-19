@@ -1,0 +1,25 @@
+<?php
+
+
+/**
+ * Implement hook_preprocess_node
+ */
+
+function cb_url_preprocess_node(&$vars, $hook) {
+	$node = $vars['node'];
+
+	if (isset($node->field_curlitem_category_parent[$node->language][0]['tid'])) {
+		$cat = taxonomy_term_load($node->field_curlitem_category_parent[$node->language][0]['tid']);
+
+		if(strstr($cat->name, "Columbia Business") && !empty($node->field_curlitem_pub_nid[$node->language][0]['value'])) {
+			$pub_url = $node->field_curlitem_pub_url[$node->language][0]['value'];
+			//try to get alias
+			if(!strstr($pub_url, "node")) {
+				$node->field_curlitem_pub_url[$node->language][0]['value'] = str_replace("/articles/", "/alumni/news/", $pub_url);
+			} else {			
+				$node->field_curlitem_pub_url[$node->language][0]['value'] = '/alumni/publication/' . $node->field_curlitem_pub_nid[$node->language][0]['value'];
+			}
+		}
+	}
+}
+

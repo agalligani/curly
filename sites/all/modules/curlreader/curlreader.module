@@ -1,0 +1,393 @@
+<?php
+
+/**
+ * Implements hook_preprocess_page
+ */
+ 
+function curlreader_preprocess_page(&$vars) {
+    if($vars['is_front']) {
+       drupal_add_js(drupal_get_path('module','curlreader').'/js/curlreader.js');
+   }
+	else {
+       drupal_add_js(drupal_get_path('module','curlreader').'/js/landing.js');	
+	}
+}
+
+
+/* 
+ * curlform contains the block theming for the curl menu / form
+ */
+
+module_load_include('inc', 'curlreader', 'curlreader.vocab');
+module_load_include('inc', 'curlreader', 'curlreader.curlform');
+module_load_include('inc', 'curlreader', 'curlreader.video');
+module_load_include('inc', 'curlreader', 'curlreader.search');
+module_load_include('inc', 'curlreader', 'curlreader.admin');
+module_load_include('inc', 'curlreader', 'curlreader.feeds');
+
+
+function curlreader_menu() {
+  
+  $items['curlreader_page'] = array (
+    'title' => 'Load Article Form',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('articles_form'),
+    'access callback' => TRUE,
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+ $items['correct_prefix'] = array (
+    'title' => 'Correct Prefixes',
+    'page callback' => 'curlreader_correct_prefix',
+    'access callback' => TRUE,
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  $items['curlreader_page/newsroom'] = array (
+    'title' => 'Load Newsroom Items',
+    'page callback' => 'curlreader_page_newsroom',
+    'access callback' => TRUE,
+    'type' => MENU_LOCAL_TASK,
+  );
+  
+  $items['curlreader_page/chazen'] = array (
+    'title' => 'Load Chazen Items',
+    'page callback' => 'curlreader_page_chazen',
+    'access callback' => TRUE,
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  $items['curlreader_page/caseworks'] = array (
+    'title' => 'Load Caseworks Items',
+    'page callback' => 'curlreader_page_caseworks',
+    'access callback' => TRUE,
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  $items['curlreader_page/videos'] = array (
+    'title' => 'Videos',
+    'page callback' => 'curlreader_page_videos',
+    'access callback' => TRUE,
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+    
+  $items['curlreader_page/ideas'] = array (
+    'title' => 'Ideas at Work',
+    'page callback' => 'curlreader_page_ideas',
+    'access callback' => TRUE,
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+    
+  $items['curlreader_page/cbs'] = array (
+    'title' => 'CBS',
+    'page callback' => 'curlreader_page_cbs',
+    'access callback' => TRUE,
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+    
+  $items['admin/config/GSB/curlreader'] = array (
+    'title' => 'Curl Admin URLs',
+    'description' => 'Set URLs for the Curl',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('curlreader_admin'),
+    'access arguments' => array('access administration pages'),
+  );
+    
+  $items['admin/config/GSB/curlimages'] = array (
+    'title' => 'Curl Admin Images',
+    'description' => 'Setting images for the Curl',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('curlreader_images_form'),
+    'access arguments' => array('access administration pages'),
+  );
+  
+  $items['admin/curlreader_video'] = array (
+    'title' => 'Load Video Entries',
+    'page callback' => 'curlreader_loadvideo',
+    'access callback' => TRUE,
+    'type' => MENU_NORMAL_ITEM,
+  );
+    
+  $items['curlreader_pubquery/%/%'] = array (
+    'title' => 'Class Pages',
+    'page callback' => 'curlreader_get_pub_matches',
+    'page arguments' => array(1,2),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+  
+  $items['curlreader_ajaxpage'] = array (
+    'title' => 'Class Pages',
+    'page callback' => 'curlreader_ajaxpage',
+    'page arguments' => array(1,2),
+    'access callback' => TRUE,
+    'file' => 'curlreader.ajaxpage.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['curlreader_ajaxSetDate'] = array (
+    'title' => 'Class Pages',
+    'page callback' => 'curlreader_ajaxSetDate',
+    'access callback' => TRUE,
+    'file' => 'curlreader.ajaxpage.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['curlreader_expand'] = array(
+    'title' => 'Returns expanded node',
+    'page callback' => 'curlreader_expand', 
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['curlreader_contract'] = array(
+    'title' => 'Returns contracted node',
+    'page callback' => 'curlreader_contract', 
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+  
+  $items['curlreader_vocab'] = array (
+    'title' => 'Class Pages',
+    'page callback' => 'curlreader_vocab',
+    'page arguments' => array(1,2),
+    'access callback' => TRUE,
+    'file' => 'curlreader.vocab.inc',
+    'type' => MENU_CALLBACK,
+  );
+    
+  $items['dupes'] = array (
+    'title' => 'Curl Duplicates',
+    'description' => 'Configure Curl Feeds',
+    'page callback' => 'show_dupes',
+    'access arguments' => array('Run curl feeds'),
+    'type' => MENU_NORMAL_ITEM,
+    );
+
+/* landing pages */
+    
+  $items['columbia-business'] = array (
+    'title' => 'CBS Articles',
+    'description' => 'CBS Articles Landing Page',
+    'page callback' => 'basic_page',
+    'access callback' => TRUE,
+    'type' => MENU_NORMAL_ITEM,
+    );
+
+  $items['chazen-global-insights'] = array (
+    'title' => 'Chazen Global Insights',
+    'description' => 'Chazen Landing Page',
+    'page callback' => 'basic_page',
+    'access callback' => TRUE,
+    'type' => MENU_NORMAL_ITEM,
+    );
+
+  $items['ideas-at-work'] = array (
+    'title' => 'Ideas At Work',
+    'description' => 'Ideas At Work Landing Page',
+    'page callback' => 'basic_page',
+    'access callback' => TRUE,
+    'type' => MENU_NORMAL_ITEM,
+    );
+
+  $items['newsroom'] = array (
+    'title' => 'Newsroom',
+    'description' => 'Newsroom Landing Page',
+    'page callback' => 'basic_page',
+    'access callback' => TRUE,
+    'type' => MENU_NORMAL_ITEM,
+    );
+    
+  $items['video-library'] = array (
+    'title' => 'CBS Video',
+    'description' => 'Video Landing Page',
+    'page callback' => 'basic_page',
+    'access callback' => TRUE,
+    'type' => MENU_NORMAL_ITEM,
+    );
+
+
+  return $items;
+}
+
+function basic_page() {
+ return array();
+}
+
+
+function articles_form() {
+
+  $form = array();
+  
+  $form['desc'] =array(
+    '#type' => 'markup',
+    '#markup' => '<h2>This form will load articles from the main Columbia Business School articles feed.</h2><br/>',    
+  );
+  
+  $form['desc2'] =array(
+    '#type' => 'markup',
+    '#markup' => 'The base URL for this feed is currently set as: <b>'.variable_get('url_cbs', 'http://www8.gsb.columbia.edu/articles/articles_services/search/article').'</b>',    
+  );
+  
+  $form['url'] =array(
+    '#type' => 'textfield',
+    '#title' => 'Feed Url',    
+    '#value' => variable_get('url_cbs', 'http://www8.gsb.columbia.edu/articles/articles_services/search/article'),
+    '#size' => 90,
+    '#disabled' => true,
+  );
+
+  $form['start_date'] =array(
+    '#type' => 'textfield',
+    '#title' => t('Start Date'),    
+    '#size' => 30,
+    '#description' => t('Enter the value of the start date for the articles to load. Leave blank to ignore.'),    
+    '#default_value' => '',
+  );
+  
+  $form['page'] =array(
+    '#type' => 'textfield',
+    '#title' => t('Page Number'),    
+    '#size' => 5,
+    '#description' => t('Enter the page number of the feed you want to load. Leave blank to ignore.'),    
+    '#default_value' => '',
+  );
+  
+  $form['xitems'] =array(
+    '#type' => 'textfield',
+    '#title' => t('Number of Items'),    
+    '#size' => 5,
+    '#description' => t('Enter the number of items to load. Leave blank to ignore.'),    
+    '#default_value' => '',
+  );
+  
+  $form['submit'] =array(
+    '#type' => 'submit',
+    '#value' => 'Fetch Items',
+    '#title' => t('Fetch Items'),    
+  );
+    
+  return $form;    
+
+}
+
+
+function articles_form_submit(&$form, &$form_state) {
+   $val = $form_state['values'];
+   $feed_url = $val['url'];
+   $start_date = strtotime($val['start_date']);
+
+   $page = isset($_GET['page']) && preg_match("/^[0-9]+$/", $_GET['page']) == 1 ? $_GET['page']:0;
+   $option = array();
+   if($start_date) {
+     $option['query']['start_date'] = $start_date;
+   }
+   if($val['page']) {
+     $option['query']['page'] = $val['page'];
+   }
+   if($val['xitems']) {
+     $option['query']['xitems'] = $val['xitems'];
+   }
+   $url = url($feed_url, $option);
+   
+   drupal_set_message($url);
+   curlreader_publication_loop_results($url);
+}
+
+
+/**
+* Implements hook_entity_info_alter().
+*/
+function curlreader_entity_info_alter(&$entity_info) {
+  $entity_info['node']['view modes']['expanded'] = array(
+    'label' => t('Curlitem Expanded'),
+    'custom settings' => TRUE,
+  );
+}
+
+/**
+* Implements hook_preprocess_node(). can use node--NODE-TYPE--VIEW-MODE.tpl.php
+*/
+function curlreader_preprocess_node(&$vars) {
+  $vars['theme_hook_suggestions'][] = 'node__' . $vars['type'] . '__' . $vars['view_mode'];
+}
+
+function curlreader_expand() {
+	$nid = '';
+    if(isset($_POST['id'])) {
+       $nid = substr($_POST['id'], 14);    
+  		print drupal_render(node_view(node_load($nid), "expanded"));
+       }  else {
+       		print drupal_render(node_view(node_load($nid)));
+   }
+}
+
+function curlreader_contract() {
+  $nid = '';
+  if(isset($_POST['id'])) {
+    $nid = substr($_POST['id'], 14);    
+  	print drupal_render(node_view(node_load($nid), "teaser"));
+  } 
+}
+
+function curlreader_form_alter(&$form, &$form_state, $form_id) {
+  if($form_id == 'curlitem_node_form') {
+//      drupal_set_message(print_r($form['field_curlitem_topics']['#type'],true));
+     $form_state['#submit'][]= 'curlredirect'; 
+  }
+}
+
+
+function curlreader_field_widget_form_alter(&$element, &$form_state, $context) { 
+  if ($context['field']['type'] == 'container') {
+   
+    $element['#collapsible'] = TRUE;   
+    // Ajax upload seems to re-render the fieldset as collapsed causing the screen to jump, better to leave the default as not collapsed
+    $element['#collapsed'] = FALSE;
+   
+    if (!isset($element['#pre_render'])) {
+      $element['#pre_render'] = array();
+    }
+    $element['#pre_render'][] = 'form_pre_render_fieldset';
+   
+    if (!isset($element['#process'])) {
+      $element['#process'] = array();
+    }
+    $element['#process'][] = 'form_process_fieldset';
+    // $element['#process'][] = 'ajax_process_form'; // Dont know if this is needed, seems to work without it
+  }
+}
+
+function curlredirect($form, &$form_state) {
+  $form_state['rebuild'] = TRUE;
+  $form_state['redirect'] = 'redirect';
+}
+
+function _node_form_submit($form, &$form_state) {
+    unset($form_state['rebuild']);  // if $form_state['rebuild'] == TRUE, the redirect will be ignored
+    $form_state['redirect'] = 'front'; // the address of your thank you page
+}
+
+function curlreader_theme_registry_alter(&$theme_registry) {
+  $modulepath = drupal_get_path('module', 'curlreader');
+	$theme_registry_copy = $theme_registry;
+  _theme_process_registry($theme_registry_copy, 'phptemplate', 'theme_engine', 'curlreader', $modulepath);
+  $theme_registry += array_diff_key($theme_registry_copy, $theme_registry);
+  // A list of templates the module will provide templates for
+//   $hooks = 'page';
+     $hooks = 'block';
+  // Add the key 'theme paths' if it doesn't exist in this theme's registry
+  if (!isset($theme_registry[$hooks]['theme paths'])) {
+    $theme_registry[$hooks]['theme paths'] = array();
+  }
+  //Shift this module's directory to the top of the theme path list 
+  if(is_array($theme_registry[$hooks]['theme paths'])) {
+    $first_element = array_shift($theme_registry[$hooks]['theme paths']);
+    if ($first_element) {
+      array_unshift($theme_registry[$hooks]['theme paths'], $first_element, $modulepath);
+    }
+		else {
+        array_unshift($theme_registry[$hooks]['theme paths'], $modulepath);
+    }
+  }  
+}

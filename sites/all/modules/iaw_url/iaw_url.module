@@ -1,0 +1,19 @@
+<?php
+
+
+/**
+ * Implement hook_preprocess_node
+ */
+
+function iaw_url_preprocess_node(&$vars, $hook) {
+	$node = $vars['node'];
+
+	if (isset($node->field_curlitem_category_parent[$node->language][0]['tid'])) {
+		$cat = taxonomy_term_load($node->field_curlitem_category_parent[$node->language][0]['tid']);
+
+		if(strstr($cat->name, "Ideas at Work") && !empty($node->field_curlitem_pub_nid[$node->language][0]['value'])) {
+			$node->field_curlitem_pub_url[$node->language][0]['value'] = '/ideas-at-work/publication/' . $node->field_curlitem_pub_nid[$node->language][0]['value'];
+		}
+	}
+}
+

@@ -1,0 +1,53 @@
+/*
+
+    /Users/tony.galligani/cbs2/sites/all/themes/gsb_theme/assets/css/tabs.css
+
+        TODO:
+
+                Cleanup
+                Etc...
+
+*/
+
+/* Content // Tabs */ 
+.tabs ul {
+    margin: 0;
+    padding: 20px 0;
+}
+
+.tabs li {
+    float: left;
+    line-height: 1em;
+    list-style: none;
+    padding: 4px 8px;
+}
+
+.tabs .headlink {
+    border-bottom: none;
+    display: block;
+    margin: 0 8px 0 0;
+}
+
+.tabs .last {
+    margin-right: 0;
+}
+
+.tabs .active .headlink {
+    font-weight: bold;
+}
+
+.tabs-content {
+    clear: both;
+}
+
+.tabs-content .tab {
+    display: none;
+    margin: 0;
+    padding: 0;
+}
+
+.tabs-content .tab.active {
+    display: block;
+}
+
+

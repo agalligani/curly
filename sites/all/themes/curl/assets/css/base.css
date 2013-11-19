@@ -1,0 +1,161 @@
+*:before,
+*:after {
+    vertical-align: text-top;
+}
+
+/* HTML // Body */
+html,
+body {
+    height: 100%;
+
+}
+
+html {
+    font: normal normal 100%/1.25em arial, sans-serif;
+}
+
+body {
+    background: #fff;
+    color: #535353;
+    font: normal normal 1em/1.25em arial, sans-serif;
+}
+
+a {
+    color: #0081cc;
+}
+
+a:active {
+    color: #0081cc;
+}
+
+/* Wrapper */ 
+#wrapper {
+    margin: 0 auto;
+    min-height: 100%;
+    padding: 0;
+    position: relative;
+    width: 100%;
+}
+
+.wrap-max {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.wrap {
+    margin: 0 auto;
+    max-width: 960px;
+    padding: 0;
+    width: 960px;
+}
+
+/* Header */
+#top {
+    background: url(../images/layout/level-two-background.png) repeat 0 -1px;
+    margin: 0 auto;
+    max-width: 1050px;
+    position: relative;
+    z-index: 5;
+}
+
+#top.shdw {
+    -moz-box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+    -webkit-box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+}
+
+#top a {
+    text-decoration: none;
+}
+
+#top .first {
+    margin-left: 0;
+}
+
+#top .wrap {
+    max-height: 130px;
+    padding: 20px 0 24px 0;
+}
+
+.no-boxshadow #top.shdw {
+    box-shadow: none;
+}
+
+.ie7 #top .wrap {
+    padding-bottom: 22px;
+}
+
+header ul {
+    margin: 0;
+    padding: 0;
+}
+
+header li {
+    float: left;
+    list-style-type: none;
+}
+
+header li a {
+    display: block;
+    line-height: 1em;
+    text-transform: uppercase;
+}
+
+/* Header // Logo */ 
+#logo {
+    float: left;
+    height: 86px;
+    overflow: hidden;
+    width: 171px;
+}
+
+#logo a {
+    background: url(../images/logo.png) no-repeat;
+    display: block;
+    height: 100%;
+    text-decoration: none;
+    width: 100%;
+}
+
+#logo a:hover {
+    filter: alpha(opacity=80);
+    opacity: .8;
+}
+
+#logo a:active {
+    position: relative;
+    top: 2px;
+}
+
+/* Header // Navigation */ 
+.primary,
+.top-level {
+    float: right;
+}
+
+.primary a,
+.top-level a {
+    color: #fff;
+}
+
+.top-level .faculty,
+.primary .headlink {
+    font-family: "freight-sans-pro", "Myriad Pro", "Lucida Grande", Helvetica, sans-serif;
+    font-weight: 500;
+}
+
+.top-level {
+    font-size: 0.813em;
+    margin-bottom: 42px;
+}
+
+.top-level .faculty {
+    margin: 0 36px 0 0;
+    padding: 0;
+}
+
+
+.primary li {
+    margin: 0 0 0 20px;
+}

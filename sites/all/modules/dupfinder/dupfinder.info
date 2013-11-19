@@ -1,0 +1,5 @@
+name = dupfinder
+description = find and delete duplicate records
+core = 7.x
+package = 1A
+files = dupfinder.module

@@ -1,0 +1,5 @@
+name = curlreader
+description = reads article feeds into the curl database
+core = 7.x
+package = 1A
+files = curlreader.module

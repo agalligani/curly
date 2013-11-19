@@ -1,0 +1,7 @@
+name = meganav
+description = meganav for curl site, ENABLE ON CURL SITE ONLY
+core = 7.x
+package = 1A
+stylesheets[all][] = assets/css/reset-min.css
+stylesheets[all][] = assets/css/base.css
+

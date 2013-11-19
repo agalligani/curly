@@ -1,0 +1,115 @@
+/*
+
+   
+
+        TODO:
+
+                Cleanup
+                Etc...
+
+*/
+
+#messages {
+  margin: 10px auto;
+  z-index: 10;
+  width: 1200px;
+  background-color: #323232;
+  color: #440000;
+  font-size: 30px;
+}
+
+
+/*
+
+    6px     0.375em     37.5%       5pt
+    7px     0.438em     43.8%       5pt
+    8px     0.500em     50.0%       6pt
+    9px     0.563em     56.3%       7pt
+    10px    0.625em     62.5%       8pt
+    11px    0.688em     68.8%       8pt
+    12px    0.750em     75.0%       9pt
+    13px    0.813em     81.3%       10pt
+    14px    0.875em     87.5%       11pt
+    15px    0.938em     93.8%       11pt
+    16px    1.000em     100.0%      12pt
+
+    -------
+    Typekit
+    -------
+
+    font-family: "freight-sans-pro";
+    font-weight: 700;
+    Bold
+    font-weight: 500;
+    Medium
+    font-weight: 400;
+    Book
+    font-weight: 300;
+    Light
+
+*/
+
+/* Global Classes // Fonts */ 
+@font-face {
+    font-family: "modern_pictogramsnormal";
+    font-style: normal;
+    font-weight: normal;
+    src: url("../fonts/modernpics-webfont.eot");
+    src: url("../fonts/modernpics-webfont.eot?#iefix") format("embedded-opentype"),
+         url("../fonts/modernpics-webfont.woff") format("woff"),
+         url("../fonts/modernpics-webfont.ttf") format("truetype"),
+         url("../fonts/modernpics-webfont.svg#modern_pictogramsnormal") format("svg");
+}
+
+/*
+@font-face {
+    font-family: "freightsans_boldregular";
+    font-style: normal;
+    font-weight: normal;
+    src: url("../fonts/freightsansbold-webfont.eot");
+    src: url("../fonts/freightsansbold-webfont.eot?#iefix") format("embedded-opentype"),
+         url("../fonts/freightsansbold-webfont.woff") format("woff"),
+         url("../fonts/freightsansbold-webfont.ttf") format("truetype"),
+         url("../fonts/freightsansbold-webfont.svg#freightsans_boldregular") format("svg");
+}
+
+@font-face {
+    font-family: "freightsans_bookregular";
+    font-style: normal;
+    font-weight: normal;
+    src: url("../fonts/freightsansbook-webfont.eot");
+    src: url("../fonts/freightsansbook-webfont.eot?#iefix") format("embedded-opentype"),
+         url("../fonts/freightsansbook-webfont.woff") format("woff"),
+         url("../fonts/freightsansbook-webfont.ttf") format("truetype"),
+         url("../fonts/freightsansbook-webfont.svg#freightsans_bookregular") format("svg");
+}
+
+@font-face {
+    font-family: "freightsans_lightregular";
+    font-style: normal;
+    font-weight: normal;
+    src: url("../fonts/freightsanslight-webfont.eot");
+    src: url("../fonts/freightsanslight-webfont.eot?#iefix") format("embedded-opentype"),
+         url("../fonts/freightsanslight-webfont.woff") format("woff"),
+         url("../fonts/freightsanslight-webfont.ttf") format("truetype"),
+         url("../fonts/freightsanslight-webfont.svg#freightsans_lightregular") format("svg");
+}
+
+@font-face {
+    font-family: "freightsans_mediumregular";
+    font-style: normal;
+    font-weight: normal;
+    src: url("../fonts/freightsansmedium-webfont.eot");
+    src: url("../fonts/freightsansmedium-webfont.eot?#iefix") format("embedded-opentype"),
+         url("../fonts/freightsansmedium-webfont.woff") format("woff"),
+         url("../fonts/freightsansmedium-webfont.ttf") format("truetype"),
+         url("../fonts/freightsansmedium-webfont.svg#freightsans_mediumregular") format("svg");
+}
+
+*/
+
+.t-icon {
+    font-family: "modern_pictogramsnormal";
+    font-size: 1.500em;
+}
+

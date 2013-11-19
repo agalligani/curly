@@ -1,0 +1,37 @@
+<?php
+
+function meganav_init() {
+  drupal_add_css(drupal_get_path('module','meganav').'/meganav.css');
+  drupal_add_js(drupal_get_path('module','meganav').'/assets/js/app.js');
+}
+
+function meganav_block_info() {
+  $blocks = array();
+  $blocks['meganav'] = array(
+    'info' => t('meganav'),
+  );
+  return $blocks;
+}
+
+
+function meganav_block_view($delta = '') {
+  // This example is adapted from node.module.
+  $block = array();
+
+  if($delta == 'meganav') {
+          $block['content'] = array(
+            '#theme' => 'meganav',
+        );
+  }	
+  return $block;	
+
+}
+
+
+function meganav_theme($existing, $type, $theme, $path) {
+  return array(
+      'meganav' => array(
+          'variables' => array(),
+          'template' => 'meganav',)
+  );
+}

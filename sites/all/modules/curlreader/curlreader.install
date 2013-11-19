@@ -1,0 +1,697 @@
+<?php
+
+/*
+ *  Curl Reader install script
+ */
+function curlreader_install() {
+
+/*
+ * check if articles vocabulary exists. if not install it
+ */
+ 
+ $voc = taxonomy_vocabulary_machine_name_load('articles');
+ if(!$voc) {
+   $voc = new stdClass;
+   $voc->name = 'articles';
+   $voc->machine_name = 'articles';
+   if(!empty($voc)){
+     taxonomy_vocabulary_save($voc);
+   }
+ }
+ 
+/*
+ * check if nomenclature vocabulary exists. if not install it
+ */
+ 
+ $voc = taxonomy_vocabulary_machine_name_load('nomenclature');
+ if(!$voc) {
+   $voc = new stdClass;
+   $voc->name = 'nomenclature';
+   $voc->machine_name = 'nomenclature';
+   if(!empty($voc)){
+     taxonomy_vocabulary_save($voc);
+   }
+ }
+ 
+/*
+ * check if topics vocabulary exists. if not install it
+ */
+ 
+ $voc = taxonomy_vocabulary_machine_name_load('topics');
+ if(!$voc) {
+   $voc = new stdClass;
+   $voc->name = 'topics';
+   $voc->machine_name = 'topics';
+   if(!empty($voc)){
+     taxonomy_vocabulary_save($voc);
+   }
+ }
+
+	if (!in_array('curlitem', node_type_get_names())) {
+	  $type = array(
+	    'type' => 'curlitem',
+	    'name' => t('Curl Item'),
+	    'base' => 'node_content',
+	    'description' => 'Curl Curated content type.',
+	    'custom' => 1,
+	    'modified' => 1,
+	    'locked' => 0,
+	    'title_label' => 'Title'
+    );
+	  $type = node_type_set_defaults($type);
+	  node_type_save($type);
+	  node_add_body_field($type, 'Expanded Summary');
+	}
+	
+/*
+ *  field_curlitem_featured - needed?
+ */
+	
+  $myField_name = "field_curlitem_featured";
+  if(!field_info_field($myField_name)) {
+    $field = array(
+    'field_name'    => $myField_name,
+    'type'          => 'list_boolean',
+	'entity_types' => array('node'),
+    'cardinality' => 1,
+    'not null' => TRUE,
+    'default' => 1,
+    'description' => t('Featured'),
+    'settings' => array(
+      'allowed_values' => array(0 =>'No', 1=> 'Yes'),
+    ),
+  );
+    
+  field_create_field($field);
+  $field_instance = array(
+    'field_name'    => $myField_name,
+    'entity_type'   => 'node',
+    'bundle'        => 'curlitem',
+    'label'         => t('Featured'),
+    'description'   => t('Make this the featured curl item'),
+  );
+  		
+  field_create_instance($field_instance);
+  drupal_set_message("Field ".$myField_name." created successfully!");
+  }	
+	
+
+/*
+ *  field_curlitem_pub
+ */
+		
+  $myField_name = "field_curlitem_pub";
+  
+  if(!field_info_field($myField_name)) {
+    $field = array(
+    'field_name'    => $myField_name,
+    'type'          => 'text',
+	'entity_types'  => array('node'),
+    'cardinality'   => 1,
+    'description'   => t('Publication'),
+  );
+    
+  field_create_field($field);
+  $field_instance = array(
+    'field_name'    => $myField_name,
+    'entity_type'   => 'node',
+    'bundle'        => 'curlitem',
+    'label'         => t('Publication'),
+    'description'   => t('Originating publication'),
+    'widget' => array(
+        'type' => 'text_field',
+        'weight' => 120,
+      ),
+  );
+  
+  		
+  field_create_instance($field_instance);
+  drupal_set_message("Field ".$myField_name." created successfully!");
+  }	
+
+
+/*
+ *  field_curlitem_pub_prefix
+ */
+		
+  $myField_name = "field_curlitem_pub_prefix";
+  
+  if(!field_info_field($myField_name)) {
+    $field = array(
+    'field_name'    => $myField_name,
+    'type'          => 'text',
+	'entity_types'  => array('node'),
+    'cardinality'   => 1,
+    'description'   => t('Publication prefix'),
+  );
+    
+  field_create_field($field);
+  $field_instance = array(
+    'field_name'    => $myField_name,
+    'entity_type'   => 'node',
+    'bundle'        => 'curlitem',
+    'label'         => t('Publication prefix'),
+    'description'   => t('Publication prefix'),
+    'widget' => array(
+        'type' => 'text_field',
+                'weight' => 110,
+      ),
+  );
+  		
+  field_create_instance($field_instance);
+  drupal_set_message("Field ".$myField_name." created successfully!");
+  }	
+
+/*
+ *  field_curlitem_pub_nid
+ */
+	
+  $myField_name = "field_curlitem_pub_nid";
+  if(!field_info_field($myField_name)) {
+    $field = array(
+    'field_name'    => $myField_name,
+    'type'          => 'number_integer',
+	'entity_types' => array('node'),
+    'cardinality' => 1,
+    'description' => t('Original Nid'),
+  );
+    
+  field_create_field($field);
+  $field_instance = array(
+    'field_name'    => $myField_name,
+    'entity_type'   => 'node',
+    'bundle'        => 'curlitem',
+    'label'         => t('Original NID'),
+    'description'   => t('Original Node ID'),
+    'widget' => array(
+        'type' => 'text_field',
+                'weight' => 109,
+      ),
+  );
+  		
+  field_create_instance($field_instance);
+  drupal_set_message("Field ".$myField_name." created successfully!");
+}	
+    
+/*
+ *  field_curlitem_pub_date
+ */
+	
+  $myField_name = "field_curlitem_pub_date";
+  if(!field_info_field($myField_name)) {
+    $field = array(
+    'field_name'    => $myField_name,
+    'type'          => 'number_integer',
+	'entity_types' => array('node'),
+    'cardinality' => 1,
+    'description' => t('Publication Date'),
+  );
+    
+  field_create_field($field);
+  $field_instance = array(
+    'field_name'    => $myField_name,
+    'entity_type'   => 'node',
+    'bundle'        => 'curlitem',
+    'label'         => t('Publication Date'),
+    'description'   => t('Most recent date published.'),
+        'widget' => array(
+                'weight' => 108,
+      ),
+  );
+  		
+  field_create_instance($field_instance);
+  drupal_set_message("Field ".$myField_name." created successfully!");
+  }	
+
+/*
+ *  field_curlitem_pub_byline
+ */
+		
+  $myField_name = "field_curlitem_pub_byline";
+  
+  if(!field_info_field($myField_name)) {
+    $field = array(
+    'field_name'    => $myField_name,
+    'type'          => 'text',
+	'entity_types'  => array('node'),
+    'cardinality'   => 1,
+    'description'   => t('Publication byline'),
+  );
+    
+  field_create_field($field);
+  $field_instance = array(
+    'field_name'    => $myField_name,
+    'entity_type'   => 'node',
+    'bundle'        => 'curlitem',
+    'label'         => t('Publication byline'),
+    'description'   => t('Byline for publication article'),
+    'widget' => array(
+        'type' => 'text_field',
+                'weight' => 5,
+      ),
+  );
+  		
+  field_create_instance($field_instance);
+  drupal_set_message("Field ".$myField_name." created successfully!");
+  }	
+
+
+/*
+ *  field_curlitem_eyebrow
+ */
+		
+  $myField_name = "field_curlitem_eyebrow";
+  
+  if(!field_info_field($myField_name)) {
+    $field = array(
+    'field_name'    => $myField_name,
+    'type'          => 'text',
+	'entity_types'  => array('node'),
+    'cardinality'   => 1,
+    'description'   => t('Publication eyebrow'),
+  );
+    
+  field_create_field($field);
+  $field_instance = array(
+    'field_name'    => $myField_name,
+    'entity_type'   => 'node',
+    'bundle'        => 'curlitem',
+    'label'         => t('Eyebrow'),
+    'description'   => t('Eyebrow for publication article'),
+        'widget' => array(
+        'type' => 'text_field',
+                'weight' => 106,
+      ),
+
+  );
+  		
+  field_create_instance($field_instance);
+  drupal_set_message("Field ".$myField_name." created successfully!");
+  }	
+
+/*
+ *  field_curlitem_pub_url
+ */
+		
+  $myField_name = "field_curlitem_pub_url";
+  
+  if(!field_info_field($myField_name)) {
+    $field = array(
+    'field_name'    => $myField_name,
+    'type'          => 'text',
+	'entity_types'  => array('node'),
+    'cardinality'   => 1,
+    'description'   => t('Publication url'),
+  );
+    
+  field_create_field($field);
+  $field_instance = array(
+    'field_name'    => $myField_name,
+    'entity_type'   => 'node',
+    'bundle'        => 'curlitem',
+    'label'         => t('Publication URL'),
+    'description'   => t('URL link for publication article'),
+        'widget' => array(
+        'type' => 'text_field',
+                'weight' => 106,
+      ),
+
+  );
+  		
+  field_create_instance($field_instance);
+  drupal_set_message("Field ".$myField_name." created successfully!");
+  }	
+
+
+/*
+ *  field_curlitem_pub_img_url
+ */
+		
+  $myField_name = "field_curlitem_pub_img_url";
+  
+  if(!field_info_field($myField_name)) {
+    $field = array(
+    'field_name'    => $myField_name,
+    'type'          => 'text',
+	'entity_types'  => array('node'),
+    'cardinality'   => 1,
+    'description'   => t('Publication image url'),
+  );
+    
+  field_create_field($field);
+  $field_instance = array(
+    'field_name'    => $myField_name,
+    'entity_type'   => 'node',
+    'bundle'        => 'curlitem',
+    'label'         => t('Publication image URL'),
+    'description'   => t('URL for original image'),
+        'widget' => array(
+        'type' => 'text_field',
+                'weight' => 8,
+      ),
+
+  );
+  		
+  field_create_instance($field_instance);
+  drupal_set_message("Field ".$myField_name." created successfully!");
+  }	
+
+/*
+ *  field_curlitem_pub_img_w
+ */
+		
+  $myField_name = "field_curlitem_pub_img_w";
+  
+  if(!field_info_field($myField_name)) {
+    $field = array(
+    'field_name'    => $myField_name,
+    'type'          => 'number_integer',
+	'entity_types' => array('node'),
+    'cardinality' => 1,
+    'description' => t('Original Image Width'),
+  );
+    
+  field_create_field($field);
+  $field_instance = array(
+    'field_name'    => $myField_name,
+    'entity_type'   => 'node',
+    'bundle'        => 'curlitem',
+    'label'         => t('Original Image Width'),
+    'description'   => t('Original Image width in pixels'),     
+    'widget' => array(
+        'type' => 'text_field',
+        'weight' => 9,
+      ),
+)
+  ;
+  		
+  field_create_instance($field_instance);
+  drupal_set_message("Field ".$myField_name." created successfully!");
+}	
+    
+/*
+ *  field_curlitem_pub_img_h
+ */
+		
+  $myField_name = "field_curlitem_pub_img_h";
+  
+  if(!field_info_field($myField_name)) {
+    $field = array(
+    'field_name'    => $myField_name,
+    'type'          => 'number_integer',
+	'entity_types' => array('node'),
+    'cardinality' => 1,
+    'description' => t('Original Image Height'),
+  );
+    
+  field_create_field($field);
+  $field_instance = array(
+    'field_name'    => $myField_name,
+    'entity_type'   => 'node',
+    'bundle'        => 'curlitem',
+    'label'         => t('Original Image Height'),
+    'description'   => t('Original Image height in pixels'),
+      'widget' => array(
+      'type' => 'text_field',
+                'weight' => 10,
+      ),
+  );
+  		
+  field_create_instance($field_instance);
+  drupal_set_message("Field ".$myField_name." created successfully!");
+}	
+
+/*
+ *  field_curlitem_category_parent
+ */
+  
+  $myField_name = "field_curlitem_category_parent";
+
+if(!field_info_field($myField_name)) {
+  
+  $field = array(
+  'field_name' => $myField_name,
+  'type' => 'taxonomy_term_reference',
+  	'entity_types'  => array('node'),
+    'cardinality'   => 1,
+    'description'   => t('Publication/Articles (Category Parent)'),
+          'settings' => array(
+        'allowed_values' => array(
+          array(
+            'vocabulary' => 'articles',
+            'parent' => 0,
+          ),
+        ),
+      ),
+
+  );
+
+  field_create_field($field);
+  $field_instance = array(
+    'field_name'    => $myField_name,
+    'entity_type'   => 'node',
+    'bundle'        => 'curlitem',
+    'label'         => t('Item Category Parent'),
+    'description'   => t('The parent category.'),
+    'required' => FALSE,
+      'widget' => array(
+        'type' => 'options_select',
+        'weight' => 101,
+      ),
+  );
+  		
+  field_create_instance($field_instance);
+  drupal_set_message("Field ".$myField_name." created successfully!");
+  }	
+
+/*
+ *  field_curlitem_topics
+ */
+  
+  $myField_name = "field_curlitem_topics";
+
+if(!field_info_field($myField_name)) {
+  
+  $field = array(
+  'field_name' => $myField_name,
+  'type' => 'taxonomy_term_reference',
+  	'entity_types'  => array('node'),
+    'cardinality'   => FIELD_CARDINALITY_UNLIMITED,
+    'description'   => t('Item Topics'),
+          'settings' => array(
+        'allowed_values' => array(
+          array(
+            'vocabulary' => 'topics',
+            'parent' => 0,
+          ),
+        ),
+      ),
+  );
+
+  field_create_field($field);
+  $field_instance = array(
+    'field_name'    => $myField_name,
+    'entity_type'   => 'node',
+    'bundle'        => 'curlitem',
+    'label'         => t('Topics Terms'),
+    'description'   => t('Topics terminology tags'),
+        'required' => FALSE,
+      'widget' => array(
+        'type' => 'options_select',
+        'weight' => 5,
+      ),
+
+  );
+  		
+  field_create_instance($field_instance);
+  drupal_set_message("Field ".$myField_name." created successfully!");
+  }	
+
+
+/*
+ *  field_curlitem_nom
+ */
+
+/*
+ *  field_curlitem_nom
+ */
+  $myField_name = "field_curlitem_nom";
+
+if(!field_info_field($myField_name)) {
+  
+  $field = array(
+  'field_name' => $myField_name,
+  'type' => 'taxonomy_term_reference',
+  	'entity_types'  => array('node'),
+    'cardinality'   => 1,
+    'description'   => t('Item nomenclature'),
+          'settings' => array(
+        'allowed_values' => array(
+          array(
+            'vocabulary' => 'nomenclature',
+            'parent' => 0,
+          ),
+        ),
+      ),
+  );
+
+  field_create_field($field);
+  $field_instance = array(
+    'field_name'    => $myField_name,
+    'entity_type'   => 'node',
+    'bundle'        => 'curlitem',
+    'label'         => t('Nomenclature Term'),
+    'description'   => t('Article Nomenclature Term.'),
+    'required' => FALSE,
+      'widget' => array(
+        'type' => 'options_select',
+        'weight' => 4,
+      ),
+  );
+  
+  field_create_instance($field_instance);
+  drupal_set_message("Field ".$myField_name." created successfully!");
+  }	
+
+/*
+ *  field_curlitem_category
+ */
+  $myField_name = "field_curlitem_category";
+
+if(!field_info_field($myField_name)) {
+  
+  $field = array(
+  'field_name' => $myField_name,
+  'type' => 'taxonomy_term_reference',
+  	'entity_types'  => array('node'),
+    'cardinality'   => 1,
+    'description'   => t('Item category'),
+          'settings' => array(
+        'allowed_values' => array(
+          array(
+            'vocabulary' => 'articles',
+            'parent' => 0,
+          ),
+        ),
+      ),
+  );
+
+  field_create_field($field);
+  $field_instance = array(
+    'field_name'    => $myField_name,
+    'entity_type'   => 'node',
+    'bundle'        => 'curlitem',
+    'label'         => t('Category Term'),
+    'description'   => t('Category Term - calced for internal use'),
+    'required' => FALSE,
+      'widget' => array(
+        'type' => 'options_select',
+        'weight' => 102,
+      ),
+  );
+  
+  field_create_instance($field_instance);
+  drupal_set_message("Field ".$myField_name." created successfully!");
+  }	
+
+/*
+ *  field_curlitem_img
+ */
+		
+
+    $myField_name = "field_curlitem_img";
+    if(!field_info_field($myField_name)) {
+        $field = array(
+            'field_name'    => $myField_name,
+            'type'          => 'image',
+            'entity_types' => array('node'),
+        );
+    
+        field_create_field($field);
+
+        $field_instance = array(
+            'field_name'    => $myField_name,
+            'entity_type'   => 'node',
+            'bundle'        => 'curlitem',
+            'label'         => t('Tab Image'),
+            'widget'        => array(
+                'type'      => 'image_image',
+                'weight'   => 2,
+                'settings' => array(
+                   'preview_image_style' => 'medium',
+                   'progress_indicator' => 'throbber',
+                ),
+            ),
+      		'settings' => array(
+      		  'file_directory' => 'curlitem/curl_photos',
+      		  'max_filesize' => '10MB',
+      		  'title_field' => TRUE,
+      		  'alt_field' => FALSE,
+      		),
+        );
+        
+        field_create_instance($field_instance);
+        drupal_set_message("Field ".$myField_name." created successfully!");
+    }        
+
+    variable_set('node_options_curlitem', array('status', 'revision'));
+    variable_set('node_submitted_curlitem', FALSE);
+    variable_set('comment_curlitem', 1);
+
+}
+
+// float: right;
+// height: 72px;
+// width: 144px;
+
+
+function curlreader_uninstall() {
+// 
+
+  $sql = 'SELECT nid FROM {node} n WHERE n.type in (:type)';
+
+  $result = db_query($sql, array(':type' => 'curlitem'));
+
+  $nids = array();
+ 
+  foreach ($result as $row) {
+ 
+    $nids[] = $row->nid;
+ 
+  }
+
+ //Delete all the nodes at of content type
+ 
+  node_delete_multiple($nids);
+  field_delete_field('field_curlitem_pub');
+  field_delete_field('field_curlitem_pub_nid');
+  field_delete_field('field_curlitem_pub_prefix');
+  field_delete_field('field_curlitem_pub_date');
+  field_delete_field('field_curlitem_pub_title');
+  field_delete_field('field_curlitem_pub_byline');
+  field_delete_field('field_curlitem_pub_summary');
+  field_delete_field('field_curlitem_pub_url');
+  field_delete_field('field_curlitem_pub_img_url');
+  field_delete_field('field_curlitem_pub_img_h');
+  field_delete_field('field_curlitem_pub_img_w');
+  field_delete_field('field_curlitem_pub_taxonomy');
+  field_delete_field('field_curlitem_category');
+  field_delete_field('field_curlitem_category_parent');
+  field_delete_field('field_curlitem_topics');
+  field_delete_field('field_curlitem_nom');
+  field_delete_field('field_curlitem_img');
+  field_delete_field('field_curlitem_eyebrow');
+  field_delete_field('field_curlitem_featured');
+
+  
+  node_type_delete('curlitem');
+
+// Purge all field information
+
+  field_purge_batch(1000);
+  
+  variable_del('node_options_curlitem');
+  variable_del('node_submitted_curlitem');
+  variable_del('comment_curlitem');
+
+}

@@ -1,0 +1,6 @@
+; $Id$
+name = "GSB Ideas at Work Curlitem URL Override"
+description = "Rewrites URLs for Ideas at Work Curlitems"
+package = "GSB"
+core = 7.x
+version = "7.x-1.0"

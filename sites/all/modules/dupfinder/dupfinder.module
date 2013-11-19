@@ -1,0 +1,270 @@
+<?php
+
+function dupfinder_menu() {
+
+ $items = array();
+
+  $items['duplicates'] = array (
+    'title' => 'Load Article Form',
+    'page callback' => 'dupsbyparentcat',
+    'access callback' => TRUE,
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  $items['fixfields'] = array (
+    'title' => 'Load Article Form',
+    'page callback' => 'fixfieldsvideo',
+    'access callback' => TRUE,
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+
+function dupsbyparentcat() {
+	$page = array();
+    $article_parents = curlreader_get_terms('articles',1);
+    print_r($article_parents);
+    $nids = dupfinder_select_all_nodes('2');
+	$nodes = node_load_multiple($nids);
+	$count = 0;
+	$dup_count = 0;
+	$dup_nids = array();
+	$active_nid = '';
+      print '<ul id=\'node-list\' style=\'width: 1200px;\'>';	
+
+	foreach($nodes as $node) {
+	  $count++;	  
+	  $this_nid = isset($node->field_curlitem_pub_nid[$node->language][0]['value'])?$node->field_curlitem_pub_nid[$node->language][0]['value']: 'none';
+	  
+	  if( $this_nid != 'none') {
+	       if($active_nid == $this_nid) {
+	         $dup_ind = 'x';
+	         $dup_count++;
+	         if($node->status == '0') {
+			   $dup_nids[] = $node->nid;
+			 }
+			 	         
+	       } else {
+	         $dup_ind = '';
+	         $active_nid = $this_nid;	       
+	       }
+	  }
+	  
+	  $row = $dup_ind.$this_nid;
+// 	  $row .= ' url: '.$node->field_curlitem_pub_url[$node->language][0]['value'];
+// 	  $row .= ' publication: '.$node->field_curlitem_pub[$node->language][0]['value'];
+// 	  $row .= ' pub tid: '.$node->field_curlitem_category_parent[$node->language][0]['tid'];
+	  
+	  $row .= ' status: '.$node->status;
+	  $row .= ' pub_date: '.date('d-m-Y',$node->field_curlitem_pub_date[$node->language][0]['value']);
+// 	  $row .= ' orig nid: '.$node->field_curlitem_pub_nid[$node->language][0]['value'];
+	  print '<li>'.$row.'</li>';
+// 	  print '<li>'.print_r($node,true).'</li>';
+	}
+	  print '</ul>';
+//	print_r($dup_nids);
+	print '<br/>Total rows:'.$count;
+	print '<br/>Total dups:'.$dup_count;
+	
+	node_delete_multiple($dup_nids);
+	
+    return $page;
+}
+
+
+
+function fixfieldsvideo() {
+	$page = array();
+    $article_parents = curlreader_get_terms('articles',1);
+    print_r($article_parents);
+    $nids = dupfinder_select_all_nodes('5');
+	$nodes = node_load_multiple($nids);
+	$count = 0;
+	$dup_count = 0;
+	$dup_nids = array();
+	$active_nid = '';
+      print '<ul id=\'node-list\' style=\'width: 1200px;\'>';	
+
+	foreach($nodes as $node) {
+	  $count++;	  
+	  $this_nid = isset($node->field_curlitem_pub_nid[$node->language][0]['value'])?$node->field_curlitem_pub_nid[$node->language][0]['value']: 'none';
+
+ 	  $orig_url = $node->field_curlitem_pub_url[$node->language][0]['value'];
+	  $url_array = explode('.',$orig_url);
+	  array_shift($url_array);
+	  $modified_url = 'http://www8.'.implode('.',$url_array);
+	  $modified_url_q = explode('?',$modified_url);
+	  $modified_url = $modified_url_q[0];
+	  $modified_url = $orig_url;
+	  
+	  
+
+ //     $orig_nid = end($url_array);
+      $node->field_curlitem_pub_url[$node->language][0]['value'] = $modified_url; 
+// 	  node_save($node);
+	  if( $this_nid != 'none') {
+	       if($active_nid == $this_nid) {
+	         $dup_ind = 'x';
+	         $dup_count++;
+	         if($node->status == '0') {
+			   $dup_nids[] = $node->nid;
+			 }
+			 	         
+	       } else {
+	         $dup_ind = '';
+	         $active_nid = $this_nid;	       
+	       }
+	  }
+	  $row = ' - '.$modified_url;
+	  
+// 	  $row = $dup_ind.$this_nid;
+// 	  $row .= ' nid: '.$orig_nid;
+// 	   	  $row .= ' url: '.$node->field_curlitem_pub_url[$node->language][0]['value'];
+// // 	  $row .= ' publication: '.$node->field_curlitem_pub[$node->language][0]['value'];
+// // 	  $row .= ' pub tid: '.$node->field_curlitem_category_parent[$node->language][0]['tid'];
+// 	  
+// 	  $row .= ' status: '.$node->status;
+// 	  $row .= ' pub_date: '.date('d-m-Y',$node->field_curlitem_pub_date[$node->language][0]['value']);
+// // 	  $row .= ' orig nid: '.$node->field_curlitem_pub_nid[$node->language][0]['value'];
+	  print '<li>'.$row.'</li>';
+// 	  print '<li>'.print_r($node,true).'</li>';
+	}
+	  print '</ul>';
+//	print_r($dup_nids);
+	print '<br/>Total rows:'.$count;
+	print '<br/>Total dups:'.$dup_count;
+	
+//	node_delete_multiple($dup_nids);
+	
+    return $page;
+}
+
+
+
+ function dupfinder_select_all_nodes($tid = null) {
+ 
+   $query = db_select('node', 'n');
+   $query->addField('n', 'nid');
+   $query->addField('n', 'status');
+   $query->condition('type', 'curlitem', '=');
+   $query->range(0, 4000);
+
+   if($tid) {   
+//      $query->join('taxonomy_index', 'ti', 'ti.nid = n.nid');
+//      $query->addField('ti','tid');
+    $query->leftJoin('field_data_field_curlitem_category_parent', 'cp', 'cp.entity_id = n.nid');
+    $query->addField('cp','field_curlitem_category_parent_tid');
+    $query->condition('cp.field_curlitem_category_parent_tid', $tid, '=');
+   }
+   
+   $query->leftJoin('field_data_field_curlitem_pub_url', 'puburl', 'puburl.entity_id = n.nid');
+   $query->leftJoin('field_data_field_curlitem_pub_date', 'pubdate', 'pubdate.entity_id = n.nid');
+   $query->leftJoin('field_data_field_curlitem_pub_nid', 'pubnid', 'pubnid.entity_id = n.nid');
+   $query->leftJoin('field_data_field_curlitem_featured', 'featured', 'featured.entity_id = n.nid');
+   $query->addField('pubdate','field_curlitem_pub_date_value');
+   $query->addField('pubnid','field_curlitem_pub_nid_value');
+   $query->orderBy('pubnid.field_curlitem_pub_nid_value', 'ASC');
+   $query->orderBy('n.status', 'DESC');
+   $query->orderBy('puburl.field_curlitem_pub_url_value', 'ASC');
+   
+ 
+   return $query->execute()->fetchCol();
+ }
+
+
+
+
+function dupfinder_ajaxpage_display($nids=null) {
+	$first_node = node_load($nids[0]);
+	print(drupal_render(node_view_multiple(node_load_multiple($nids))));
+	drupal_exit();
+}
+
+// function dupfinder_taxonomy_select_nodes($cats, $topic=null, $nomenclature=null, $start=null, $end=null, $searchKeys = null, $pager = FALSE, $limit = FALSE, $order = array('featured.field_curlitem_featured_value' => 'DESC','t.sticky' => 'DESC', 'pubdate.field_curlitem_pub_date_value' => 'DESC', 'pubnid.field_curlitem_pub_nid_value' => 'DESC', 't.created' => 'DESC')) {
+ function dupfinder_taxonomy_select_nodes($cats, $topic=null, $nomenclature=null, $start=null, $end=null, $searchKeys = null, $pager = FALSE, $limit = FALSE, $order = array('pubnid.field_curlitem_pub_nid_value' => 'ASC', 't.created' => 'DESC')) {
+
+
+  if (!variable_get('taxonomy_maintain_index_table', TRUE)) {
+    return array();
+  }
+    
+  $query = db_select('taxonomy_index', 't');
+//  $query->addTag('node_access');
+  if (is_array($cats)) {
+    $query->condition('tid', $cats, 'IN');
+  } else {
+    $query->condition('tid', $cats, '=');  
+  }
+  if ($pager) {
+    $count_query = clone $query;
+    $count_query->addExpression('COUNT(t.nid)');
+    $query = $query->extend('PagerDefault');
+    if ($limit !== FALSE) {
+      $query = $query->limit($limit);
+    }
+    $query->setCountQuery($count_query);
+  }
+  else {
+    if ($limit !== FALSE) {
+      $query->range(0, $limit);
+    }
+  }
+  
+  if(($start !== null)&&($end !== null)) {
+      $query->range($start, $end);  
+  }
+  
+  if($topic) {
+     $topicNids = topicQuery($topic);
+     $query->condition('nid', $topicNids, 'IN');
+  }
+
+  if($nomenclature) {
+     $nomNids = nomQuery($nomenclature);
+     $query->condition('nid', $nomNids, 'IN');
+  }
+  
+  
+  $query->addField('t', 'nid');
+  $query->addField('t', 'tid');
+  $query->leftJoin('field_data_field_curlitem_pub_date', 'pubdate', 'pubdate.entity_id = t.nid');
+  $query->leftJoin('field_data_field_curlitem_pub_nid', 'pubnid', 'pubnid.entity_id = t.nid');
+  $query->leftJoin('field_data_field_curlitem_featured', 'featured', 'featured.entity_id = t.nid');
+  $query->addField('pubdate','field_curlitem_pub_date_value');
+  $query->addField('pubnid','field_curlitem_pub_nid_value');
+
+//* search
+  if (isset($searchKeys)) { 
+    $snids = dupfinder_adhocsearch($searchKeys);
+    $query->condition('nid', $snids, 'IN');
+  }
+
+  foreach ($order as $field => $direction) {
+    $query->orderBy($field, $direction);
+    list($table_alias, $name) = explode('.', $field);
+    $query->addField($table_alias, $name);
+  }
+  return $query->execute()->fetchCol();
+}
+// 
+// function topicQuery($t) {
+// 	$topicQuery = db_select('taxonomy_index','ti');
+// 	$topicQuery->condition('tid', $t, '=');
+//     $topicQuery->addTag('node_access');
+// 	$topicQuery->addField('ti','nid');
+//     return $topicQuery->execute()->fetchCol();	  
+// }
+// 
+// function nomQuery($t) {
+// 	$nomQuery = db_select('taxonomy_index','ti');
+// 	if (is_array($t)) {
+//       $nomQuery->condition('tid', $t, 'IN');
+//     } else {
+//       $nomQuery->condition('tid', $t, '=');  
+//     }
+//     $nomQuery->addTag('node_access');
+// 	$nomQuery->addField('ti','nid');
+//     return $nomQuery->execute()->fetchCol();	  
+// }

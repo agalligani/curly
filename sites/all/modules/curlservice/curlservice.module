@@ -1,0 +1,136 @@
+<?php
+
+/*
+ * Implements hook_menu
+ */
+ 
+function curlservice_menu() {
+
+  $items = array();
+  
+  $items['article_list/%/%'] = array(
+    'title' => 'Test the articles listing',
+    'access callback' => '_curlservice_access',
+    'page callback' => '_curlservice_retrieve',
+    'page arguments' => array(1,2), 
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['category_list'] = array(
+    'title' => 'Show category listing',
+    'access callback' => '_curlservice_access',
+    'page callback' => '_curlservice_showcats',
+    'type' => MENU_CALLBACK,
+  );
+
+  
+  return $items;
+}
+
+
+function _curlservice_retrieve($limit = null, $tids = null) {
+
+  $nids = array();
+  $query = db_select('node', 'n');
+  
+  $query 
+    ->condition('n.status', 1)
+    ->condition('n.type', 'curlitem')
+    ->fields('n', array('nid'));
+
+  $query->leftJoin('field_data_field_curlitem_pub_date', 'pubdate', 'pubdate.entity_id = n.nid');
+  $query->leftJoin('field_data_field_curlitem_featured', 'featured', 'featured.entity_id = n.nid');
+  $query->addField('pubdate','field_curlitem_pub_date_value');
+
+   if ($limit && $limit != 0) {
+      $query->range(0,$limit);
+    }
+    
+   if ($tids && $tids != 0) {
+   		$tidList = explode('-',$tids.'0');
+		$tnids = tidQuery($tidList);
+		if(!empty($tnids))	 {
+		  $query->condition('n.nid', $tnids, 'IN');    
+		  }
+}
+    
+  $order = array('featured.field_curlitem_featured_value' => 'DESC','n.sticky' => 'DESC', 'pubdate.field_curlitem_pub_date_value' => 'DESC', 'n.created' => 'DESC');
+
+  foreach ($order as $field => $direction) {
+    $query->orderBy($field, $direction);
+    list($table_alias, $name) = explode('.', $field);
+    $query->addField($table_alias, $name);
+  }
+
+  $res = $query->execute();
+  foreach($res as $node) {
+    $nids[] = $node->nid;
+  }
+  
+  drupal_add_http_header('Content-Type', 'application/javascript; utf-8');
+
+//   $nodes = json_encode(node_view_multiple(node_load_multiple($nids),'feed'));
+  $nodes = node_load_multiple($nids);
+  $curl_nodes = array();
+  foreach($nodes as $node) {
+        $orig_img = !empty($node->field_curlitem_pub_img_url[$node->language][0]['value']) ? '<img src=\''.$node->field_curlitem_pub_img_url[$node->language][0]['value'].'\'>' : '';
+
+      $curl_nodes[$node->nid] = array(
+      'title'=>$node->title,
+      'body' => empty($node->body[$node->language][0]['summary']) ? '':$node->body[$node->language][0]['summary'],
+      'link' => empty($node->field_curlitem_pub_url[$node->language][0]['value']) ? '':$node->field_curlitem_pub_url[$node->language][0]['value'],
+      'image' => !empty($node->field_curlitem_img[$node->language][0]['fid']) ? render(theme('image_style',array('style_name'=>'widget_style','path'=>file_load($node->field_curlitem_img[$node->language][0]['fid'])->uri))) : $orig_img,
+      'publication' => empty($node->field_curlitem_category_parent[$node->language][0]['tid']) ? '':taxonomy_term_load($node->field_curlitem_category_parent[$node->language][0]['tid'])->name,
+      'pubdate' => empty($node->field_curlitem_pub_date[$node->language][0]['value']) ? '' : $node->field_curlitem_pub_date[$node->language][0]['value'],
+      );
+  }  
+  print(json_encode($curl_nodes));
+}
+
+function _curlservice_showcats() {
+      $catArray = array();
+      $artvid = taxonomy_vocabulary_machine_name_load('articles')->vid;
+      $t = taxonomy_get_tree($artvid,0,2);
+      foreach($t as $cat) {
+      $prefix = $cat->depth == 1 ? ' --':'';
+        $catArray[] = array('name'=>$prefix.$cat->name,'tid'=>$cat->tid);
+      }
+      
+  	drupal_add_http_header('Content-Type', 'application/javascript; utf-8');
+  	  print(json_encode($catArray));
+}
+
+/**
+ * Query to select by category
+ */
+
+function tidQuery($t) {
+	$tidQuery = db_select('taxonomy_index','ti');
+	$tidQuery->condition('ti.tid', $t, 'in');
+    $tidQuery->addTag('node_access');
+	$tidQuery->addField('ti','nid');
+    return $tidQuery->execute()->fetchCol();	  
+}
+
+
+
+/**
+ * Action retrieve callback.
+ */
+function _curlservice_action_retrieve($cat) {
+  return 'Action retrieve' . $cat;
+}
+
+
+/**
+ * Targeted Action test callback.
+ */
+function _curlservice_targeted_action_test($cat) {
+  return 'Targeted Action test' . $cat;
+}
+/**
+ * Access callback.
+ */
+function _curlservice_access() {
+  return TRUE;
+}

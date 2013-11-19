@@ -1,0 +1,123 @@
+<?php
+
+/*
+ * Implements hook_menu
+ */
+ 
+function curlservice2_menu() {
+
+  $items = array();
+//   
+//   $items['article_list/%/%'] = array(
+//     'title' => 'Test the articles listing',
+//     'access callback' => TRUE,
+//     'page callback' => 'curlservice2_retrieve_items',
+//     'page arguments' => array(1,2), 
+//     'type' => MENU_CALLBACK,
+//   );
+// 
+//   $items['category_list'] = array(
+//     'title' => 'Show category listing',
+//     'access callback' => TRUE,
+//     'page callback' => 'curlservice2_showcats',
+//     'type' => MENU_CALLBACK,
+//   );
+// 
+
+  $items['articles/feed'] = array(
+    'title' => 'Example RSS feed',
+    'page callback' => 'example_feend',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+    
+  return $items;
+}
+
+
+function example_feed() {
+  drupal_add_http_header('Content-Type', 'application/javascript; utf-8');
+  print '{"12318":{"title":"<a href=\"http:\/\/www.google.com\">Be a Standout Global Job Candidate<\/a>","body":"Four top executives describe what they look for when filling an international opening &mdash; and which credentials they ignore. ","link":"http:\/\/www8.gsb.columbia.edu\/chazen\/globalinsights\/node\/208","image":"<img src=http:\/\/www4.gsb.columbia.edu\/filemgr?&file_id=7223368>","publication":"Chazen Global Insights","pubdate":"1378738598"},"12317":{"title":"Where Global Jobs Are Now","body":"The international job market is as volatile as every, but opportunities are plentiful, particularly for specialists. Four top global execs offer their take on where to look.","link":"","image":"<img typeof=\"foaf:Image\" src=\"https:\/\/stage8.gsb.columbia.edu\/curl\/sites\/curl\/files\/styles\/widget_style\/public\/curlitem\/curl_photos\/worldmap400x250.gif?itok=ABVDaPBr\" alt=\"\" \/>","publication":"","pubdate":""},"12335":{"title":"Should Derivatives Be Privileged in Bankruptcy?","body":"Reconsider derivatives&#8217; privileged status in bankruptcy.","link":"http:\/\/stage8.gsb.columbia.edu\/articles\/node\/1871","image":"<img typeof=\"foaf:Image\" src=\"https:\/\/stage8.gsb.columbia.edu\/curl\/sites\/curl\/files\/styles\/widget_style\/public\/curlitem\/curl_photos\/stay.jpg?itok=3rkmkcje\" alt=\"\" \/>","publication":"Ideas at Work","pubdate":"1379604271"},"10700":{"title":"The Changing of the Monetary Guard","body":"<p>Leaders at many central banks are departing to mixed reviews. Can their successors chart a new course?<\/p>","link":"http:\/\/www8.gsb.columbia.edu\/chazen\/globalinsights\/node\/206","image":"<img src=http:\/\/www4.gsb.columbia.edu\/filemgr?&file_id=7223358>","publication":"Chazen Global Insights","pubdate":"1376658516"}}';
+  
+  }
+
+function curlservice2_retrieve_items($limit = null, $tids = null) {
+
+  $nids = array();
+  $query = db_select('node', 'n');
+  
+  $query 
+    ->condition('n.status', 1)
+    ->condition('n.type', 'curlitem')
+    ->fields('n', array('nid'));
+
+  $query->leftJoin('field_data_field_curlitem_pub_date', 'pubdate', 'pubdate.entity_id = n.nid');
+  $query->leftJoin('field_data_field_curlitem_featured', 'featured', 'featured.entity_id = n.nid');
+  $query->addField('pubdate','field_curlitem_pub_date_value');
+
+   if ($limit && $limit != 0) {
+      $query->range(0,$limit);
+    }
+    
+   if ($tids && $tids != 0) {
+   		$tidList = explode('-',$tids.'0');
+		$tnids = tidQuery($tidList);
+		if(!empty($tnids))	 {
+		  $query->condition('n.nid', $tnids, 'IN');    
+		  }
+}
+    
+  $order = array('featured.field_curlitem_featured_value' => 'DESC','n.sticky' => 'DESC', 'pubdate.field_curlitem_pub_date_value' => 'DESC', 'n.created' => 'DESC');
+
+  foreach ($order as $field => $direction) {
+    $query->orderBy($field, $direction);
+    list($table_alias, $name) = explode('.', $field);
+    $query->addField($table_alias, $name);
+  }
+
+  $res = $query->execute();
+  foreach($res as $node) {
+    $nids[] = $node->nid;
+  }
+  
+  drupal_add_http_header('Content-Type', 'application/javascript; utf-8');
+
+//   $nodes = json_encode(node_view_multiple(node_load_multiple($nids),'feed'));
+  $nodes = node_load_multiple($nids);
+  $curl_nodes = array();
+  foreach($nodes as $node) {
+        $orig_img = !empty($node->field_curlitem_pub_img_url[$node->language][0]['value']) ? '<img src=\''.$node->field_curlitem_pub_img_url[$node->language][0]['value'].'\'>' : '';
+
+      $curl_nodes[$node->nid] = array(
+      'title'=>$node->title,
+      'body' => empty($node->body[$node->language][0]['summary']) ? '':$node->body[$node->language][0]['summary'],
+      'link' => empty($node->field_curlitem_pub_url[$node->language][0]['value']) ? '':$node->field_curlitem_pub_url[$node->language][0]['value'],
+      'image' => !empty($node->field_curlitem_img[$node->language][0]['fid']) ? render(theme('image_style',array('style_name'=>'widget_style','path'=>file_load($node->field_curlitem_img[$node->language][0]['fid'])->uri))) : $orig_img,
+      'publication' => empty($node->field_curlitem_category_parent[$node->language][0]['tid']) ? '':taxonomy_term_load($node->field_curlitem_category_parent[$node->language][0]['tid'])->name,
+      'pubdate' => empty($node->field_curlitem_pub_date[$node->language][0]['value']) ? '' : $node->field_curlitem_pub_date[$node->language][0]['value'],
+      );
+  }  
+  print(json_encode($curl_nodes));
+}
+
+
+function curlservice2_showcats() {
+$page = array();
+
+return $page;
+
+}
+
+/**
+ * Query to select by category
+ */
+
+function tidQuery($t) {
+	$tidQuery = db_select('taxonomy_index','ti');
+	$tidQuery->condition('ti.tid', $t, 'in');
+    $tidQuery->addTag('node_access');
+	$tidQuery->addField('ti','nid');
+    return $tidQuery->execute()->fetchCol();	  
+}
+
+
